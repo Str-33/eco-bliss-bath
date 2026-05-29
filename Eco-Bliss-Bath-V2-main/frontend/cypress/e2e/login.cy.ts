@@ -1,11 +1,12 @@
 describe('Page de connexion - EcoBlissBath', () => {
 
+  const BASE_URL = 'http://localhost:4200';
   const API_LOGIN = 'http://localhost:8081/login';
 
   beforeEach(() => {
-  cy.clearLocalStorage();
-  cy.visit('http://localhost:4200/login');
-});
+    cy.clearLocalStorage();
+    cy.visit(`${BASE_URL}/#/login`);
+  });
 
   // ─────────────────────────────────────────────
   // 1. AFFICHAGE DU FORMULAIRE
@@ -26,7 +27,9 @@ describe('Page de connexion - EcoBlissBath', () => {
     });
 
     it('devrait afficher le bouton Se connecter', () => {
-      cy.get('[data-cy="login-submit"]').should('be.visible').and('contain', 'Se connecter');
+      cy.get('[data-cy="login-submit"]')
+        .should('be.visible')
+        .and('contain', 'Se connecter');
     });
 
     it('ne devrait pas afficher de message d\'erreur au chargement', () => {
@@ -84,7 +87,7 @@ describe('Page de connexion - EcoBlissBath', () => {
       cy.get('[data-cy="login-submit"]').click();
 
       cy.wait('@loginRequest');
-      cy.url().should('eq', 'http://localhost:4200/');
+      cy.url().should('eq', `${BASE_URL}/#/`);
     });
 
   });
@@ -121,14 +124,14 @@ describe('Page de connexion - EcoBlissBath', () => {
       cy.get('[for="password"]').should('have.class', 'error');
     });
 
-    it('ne devrait pas stocker de token', () => {
+    it('ne devrait pas stocker de token dans le localStorage', () => {
       cy.window().then((win) => {
         expect(win.localStorage.getItem('user')).to.be.null;
       });
     });
 
-    it('ne devrait pas rediriger', () => {
-      cy.url().should('include', '/login');
+    it('ne devrait pas rediriger vers l\'accueil', () => {
+      cy.url().should('include', '#/login');
     });
 
   });
@@ -154,18 +157,18 @@ describe('Page de connexion - EcoBlissBath', () => {
         .and('contain', 'Merci de remplir correctement tous les champs');
     });
 
-    it('devrait marquer le champ email en erreur', () => {
+    it('devrait marquer le label email en erreur', () => {
       cy.get('[for="username"]').should('have.class', 'error');
     });
 
-    it('devrait marquer le champ mot de passe en erreur', () => {
+    it('devrait marquer le label mot de passe en erreur', () => {
       cy.get('[for="password"]').should('have.class', 'error');
     });
 
   });
 
   // ─────────────────────────────────────────────
-  // 5. VALIDATION - EMAIL INVALIDE
+  // 5. VALIDATION - FORMAT EMAIL INVALIDE
   // ─────────────────────────────────────────────
 
   describe('Validation - format email invalide', () => {
@@ -187,7 +190,7 @@ describe('Page de connexion - EcoBlissBath', () => {
         .and('contain', 'Merci de remplir correctement tous les champs');
     });
 
-    it('devrait marquer le champ email en erreur', () => {
+    it('devrait marquer le label email en erreur', () => {
       cy.get('[for="username"]').should('have.class', 'error');
     });
 
@@ -199,7 +202,7 @@ describe('Page de connexion - EcoBlissBath', () => {
 
   describe('État de chargement', () => {
 
-    it('devrait afficher le spinner pendant la requête', () => {
+    it('devrait afficher le spinner et masquer le texte pendant la requête', () => {
       cy.intercept('POST', API_LOGIN, (req) => {
         req.on('response', (res) => {
           res.setDelay(500);
@@ -240,15 +243,15 @@ describe('Page de connexion - EcoBlissBath', () => {
   // 7. NAVIGATION VERS L'INSCRIPTION
   // ─────────────────────────────────────────────
 
-  describe('Navigation', () => {
+  describe('Navigation vers l\'inscription', () => {
 
     it('devrait afficher le lien vers la page d\'inscription', () => {
       cy.contains('S\'inscrire').should('be.visible');
     });
 
-    it('devrait naviguer vers /register en cliquant sur S\'inscrire', () => {
+    it('devrait naviguer vers /#/register en cliquant sur S\'inscrire', () => {
       cy.contains('S\'inscrire').click();
-      cy.url().should('include', '/register');
+      cy.url().should('include', '#/register');
     });
 
   });
