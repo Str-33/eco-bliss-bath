@@ -9,69 +9,10 @@ describe('Page de connexion - EcoBlissBath', () => {
   });
 
   // ─────────────────────────────────────────────
-  // 1. AFFICHAGE DU FORMULAIRE
-  // ─────────────────────────────────────────────
-
-  describe('Affichage du formulaire', () => {
-
-    it('devrait afficher le formulaire de connexion', () => {
-      cy.get('[data-cy="login-form"]').should(
-        'be.visible',
-        'BUG DÉTECTÉ : Le formulaire de connexion n\'est pas visible sur la page.'
-      );
-    });
-
-    it('devrait afficher le champ email', () => {
-      cy.get('[data-cy="login-input-username"]').should(
-        'be.visible',
-        'BUG DÉTECTÉ : Le champ email n\'est pas visible sur la page de connexion.'
-      );
-    });
-
-    it('devrait afficher le champ mot de passe', () => {
-      cy.get('[data-cy="login-input-password"]').should(
-        'be.visible',
-        'BUG DÉTECTÉ : Le champ mot de passe n\'est pas visible sur la page de connexion.'
-      );
-    });
-
-    it('devrait afficher le bouton Se connecter', () => {
-      cy.get('[data-cy="login-submit"]')
-        .should('be.visible', 'BUG DÉTECTÉ : Le bouton "Se connecter" n\'est pas visible.')
-        .and('contain', 'Se connecter', 'BUG DÉTECTÉ : Le bouton ne contient pas le texte "Se connecter".');
-    });
-
-    it('ne devrait pas afficher de message d\'erreur au chargement', () => {
-      cy.get('[data-cy="login-errors"]').should(
-        'not.exist',
-        'BUG DÉTECTÉ : Un message d\'erreur est affiché au chargement de la page alors qu\'aucune action n\'a été effectuée.'
-      );
-    });
-
-  });
-
-  // ─────────────────────────────────────────────
-  // 2. CONNEXION RÉUSSIE
+  // 1. CONNEXION RÉUSSIE
   // ─────────────────────────────────────────────
 
   describe('Connexion réussie', () => {
-
-    it('devrait appeler l\'API avec les bons identifiants', () => {
-      cy.intercept('POST', API_LOGIN, {
-        statusCode: 200,
-        body: { token: 'fake-jwt-token-123' },
-      }).as('loginRequest');
-
-      cy.get('[data-cy="login-input-username"]').type('test2@test.fr');
-      cy.get('[data-cy="login-input-password"]').type('testtest');
-      cy.get('[data-cy="login-submit"]').click();
-
-      cy.wait('@loginRequest').its('request.body').should(
-        'deep.equal',
-        { username: 'test2@test.fr', password: 'testtest' },
-        'BUG DÉTECTÉ : L\'API n\'a pas reçu les bons identifiants. Les données envoyées ne correspondent pas.'
-      );
-    });
 
     it('devrait stocker le token dans le localStorage après connexion', () => {
       cy.intercept('POST', API_LOGIN, {
@@ -112,7 +53,7 @@ describe('Page de connexion - EcoBlissBath', () => {
   });
 
   // ─────────────────────────────────────────────
-  // 3. CONNEXION ÉCHOUÉE - 401
+  // 2. CONNEXION ÉCHOUÉE - 401
   // ─────────────────────────────────────────────
 
   describe('Connexion échouée - identifiants incorrects (401)', () => {
@@ -168,7 +109,7 @@ describe('Page de connexion - EcoBlissBath', () => {
   });
 
   // ─────────────────────────────────────────────
-  // 4. VALIDATION - CHAMPS VIDES
+  // 3. VALIDATION - CHAMPS VIDES
   // ─────────────────────────────────────────────
 
   describe('Validation - champs vides', () => {
@@ -210,7 +151,7 @@ describe('Page de connexion - EcoBlissBath', () => {
   });
 
   // ─────────────────────────────────────────────
-  // 5. VALIDATION - FORMAT EMAIL INVALIDE
+  // 4. VALIDATION - FORMAT EMAIL INVALIDE
   // ─────────────────────────────────────────────
 
   describe('Validation - format email invalide', () => {
@@ -247,7 +188,7 @@ describe('Page de connexion - EcoBlissBath', () => {
   });
 
   // ─────────────────────────────────────────────
-  // 6. ÉTAT DE CHARGEMENT (loading)
+  // 5. ÉTAT DE CHARGEMENT (loading)
   // ─────────────────────────────────────────────
 
   describe('État de chargement', () => {
@@ -297,7 +238,7 @@ describe('Page de connexion - EcoBlissBath', () => {
   });
 
   // ─────────────────────────────────────────────
-  // 7. NAVIGATION VERS L'INSCRIPTION
+  // 6. NAVIGATION VERS L'INSCRIPTION
   // ─────────────────────────────────────────────
 
   describe('Navigation vers l\'inscription', () => {

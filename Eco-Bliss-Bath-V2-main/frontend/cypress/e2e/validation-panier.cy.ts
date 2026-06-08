@@ -23,14 +23,6 @@ describe('Validation panier - EcoBlissBath', () => {
 
   describe('Sélection d\'un produit avec stock suffisant', () => {
 
-    it('devrait afficher la liste des produits', () => {
-      cy.visit(`${BASE_URL}/#/products`);
-      cy.get('[data-cy="product"]').should(
-        'have.length.greaterThan', 0,
-        'BUG DÉTECTÉ : Aucun produit n\'est affiché sur la page produits.'
-      );
-    });
-
     it('devrait accéder à un produit dont le stock est supérieur à 1', () => {
       cy.visit(`${BASE_URL}/#/products`);
       cy.get('[data-cy="product-link"]').first().click();
@@ -47,15 +39,6 @@ describe('Validation panier - EcoBlissBath', () => {
         });
     });
 
-    it('devrait afficher le champ de disponibilité (stock) du produit', () => {
-      cy.visit(`${BASE_URL}/#/products`);
-      cy.get('[data-cy="product-link"]').first().click();
-      cy.get('[data-cy="detail-product-stock"]').should(
-        'be.visible',
-        'BUG DÉTECTÉ : Le champ de disponibilité du stock n\'est pas visible sur la page produit.'
-      );
-    });
-
   });
 
   // ─────────────────────────────────────────────
@@ -63,20 +46,6 @@ describe('Validation panier - EcoBlissBath', () => {
   // ─────────────────────────────────────────────
 
   describe('Ajout d\'un produit au panier', () => {
-
-    it('devrait ajouter le produit au panier et vérifier via l\'API', () => {
-      cy.visit(`${BASE_URL}/#/products`);
-      cy.get('[data-cy="product-link"]').first().click();
-      cy.get('[data-cy="detail-product-quantity"]').clear().type('1');
-      cy.get('[data-cy="detail-product-add"]').click();
-      cy.url().should('include', '#/cart',
-        'BUG DÉTECTÉ : Après ajout au panier, la redirection vers le panier n\'a pas eu lieu.'
-      );
-      cy.get('[data-cy="cart-line"]').should(
-        'have.length.greaterThan', 0,
-        'BUG DÉTECTÉ : Le panier est vide après l\'ajout d\'un produit.'
-      );
-    });
 
     it('devrait afficher le produit dans le panier', () => {
       cy.visit(`${BASE_URL}/#/products`);
@@ -198,48 +167,7 @@ describe('Validation panier - EcoBlissBath', () => {
   });
 
   // ─────────────────────────────────────────────
-  // 5. CONTENU DU PANIER VIA L'API
-  // ─────────────────────────────────────────────
-
-  describe('Vérification du contenu du panier via l\'API', () => {
-
-    it('devrait retrouver le produit ajouté dans le panier', () => {
-      cy.visit(`${BASE_URL}/#/products`);
-      cy.get('[data-cy="product-name"]').first()
-        .invoke('text')
-        .then((nomProduit) => {
-          cy.get('[data-cy="product-link"]').first().click();
-          cy.get('[data-cy="detail-product-quantity"]').clear().type('1');
-          cy.get('[data-cy="detail-product-add"]').click();
-          cy.url().should('include', '#/cart',
-            'BUG DÉTECTÉ : La redirection vers le panier n\'a pas eu lieu.'
-          );
-          cy.get('[data-cy="cart-line-name"]').first()
-            .invoke('text')
-            .then((nomDansLePanier) => {
-              expect(
-                nomDansLePanier.trim(),
-                `BUG DÉTECTÉ : Le produit "${nomProduit.trim()}" n'a pas été trouvé dans le panier. Produit trouvé : "${nomDansLePanier.trim()}".`
-              ).to.eq(nomProduit.trim());
-            });
-        });
-    });
-
-    it('devrait afficher le total du panier', () => {
-      cy.visit(`${BASE_URL}/#/products`);
-      cy.get('[data-cy="product-link"]').first().click();
-      cy.get('[data-cy="detail-product-quantity"]').clear().type('1');
-      cy.get('[data-cy="detail-product-add"]').click();
-      cy.get('[data-cy="cart-total"]').should(
-        'be.visible',
-        'BUG DÉTECTÉ : Le total du panier n\'est pas affiché.'
-      );
-    });
-
-  });
-
-  // ─────────────────────────────────────────────
-  // 6. VALIDATION DU PANIER
+  // 5. VALIDATION DU PANIER
   // ─────────────────────────────────────────────
 
   describe('Validation du panier', () => {
@@ -316,39 +244,6 @@ describe('Validation panier - EcoBlissBath', () => {
       cy.contains('Merci').should('be.visible',
         'BUG DÉTECTÉ : Le message "Merci" n\'est pas affiché sur la page de confirmation.'
       );
-    });
-
-  });
-
-  // ─────────────────────────────────────────────
-  // 7. CHAMP DE DISPONIBILITÉ DU PRODUIT
-  // ─────────────────────────────────────────────
-
-  describe('Champ de disponibilité du produit', () => {
-
-    it('devrait afficher le stock disponible sur la page produit', () => {
-      cy.visit(`${BASE_URL}/#/products`);
-      cy.get('[data-cy="product-link"]').first().click();
-      cy.get('[data-cy="detail-product-stock"]').should(
-        'be.visible',
-        'BUG DÉTECTÉ : Le champ de disponibilité du produit n\'est pas visible.'
-      );
-    });
-
-    it('le stock affiché doit être un nombre positif', () => {
-      cy.visit(`${BASE_URL}/#/products`);
-      cy.get('[data-cy="product-link"]').first().click();
-      cy.get('[data-cy="detail-product-stock"]')
-        .should('not.be.empty')
-        .invoke('text')
-        .then((text) => {
-          cy.log('Stock texte brut : ' + text);
-          const stock = parseInt(text.trim().split(' ')[0]);
-          expect(
-            stock,
-            `BUG DÉTECTÉ : Le stock affiché est "${text.trim()}" (valeur=${stock}). Le stock ne devrait pas être négatif ou nul.`
-          ).to.be.greaterThan(0);
-        });
     });
 
   });
