@@ -118,7 +118,7 @@ describe('Validation panier - EcoBlissBath', () => {
       cy.get('[data-cy="product-link"]').first().click();
     });
 
-    it('ne devrait pas accepter une quantité négative', () => {
+    it('saisir -1 dans le champ quantité ne doit pas ajouter le produit au panier (validation frontend)', () => {
       cy.get('[data-cy="detail-product-quantity"]').clear().type('-1');
       cy.get('[data-cy="detail-product-add"]').click();
       cy.url().should(
@@ -127,7 +127,7 @@ describe('Validation panier - EcoBlissBath', () => {
       );
     });
 
-    it('ne devrait pas accepter une quantité de 0', () => {
+    it('saisir 0 dans le champ quantité ne doit pas ajouter le produit au panier (validation frontend)', () => {
       cy.get('[data-cy="detail-product-quantity"]').clear().type('0');
       cy.get('[data-cy="detail-product-add"]').click();
       cy.url().should(
@@ -136,7 +136,7 @@ describe('Validation panier - EcoBlissBath', () => {
       );
     });
 
-    it('ne devrait pas accepter une quantité supérieure à 20', () => {
+    it('saisir 21 dans le champ quantité doit être refusé par l\'API avec une erreur (limite max = 20)', () => {
       cy.intercept('PUT', 'http://localhost:8081/orders/add').as('addToCart');
       cy.get('[data-cy="detail-product-quantity"]').clear().type('21');
       cy.get('[data-cy="detail-product-add"]').click();
@@ -155,7 +155,7 @@ describe('Validation panier - EcoBlissBath', () => {
       });
     });
 
-    it('devrait accepter une quantité valide entre 1 et 20', () => {
+    it('saisir 2 dans le champ quantité doit ajouter le produit au panier et rediriger vers #/cart', () => {
       cy.get('[data-cy="detail-product-quantity"]').clear().type('2');
       cy.get('[data-cy="detail-product-add"]').click();
       cy.url().should(
@@ -167,7 +167,48 @@ describe('Validation panier - EcoBlissBath', () => {
   });
 
   // ─────────────────────────────────────────────
-  // 5. VALIDATION DU PANIER
+  // 5. VALIDATION DU STOCK
+  // ─────────────────────────────────────────────
+
+  describe('Validation du stock disponible', () => {
+
+    it('ne devrait pas permettre de commander un produit avec un stock négatif (produit 3, stock=-8)', () => {
+      cy.visit(`${BASE_URL}/#/products/3`);
+      cy.intercept('PUT', 'http://localhost:8081/orders/add').as('addToCart');
+      cy.get('[data-cy="detail-product-quantity"]').clear().type('1');
+      cy.get('[data-cy="detail-product-add"]').click();
+      cy.wait('@addToCart').its('response.statusCode').should(
+        'be.gte', 400,
+        'BUG DÉTECTÉ : Le site accepte une commande pour un produit avec un stock négatif (-8). L\'API devrait retourner une erreur.'
+      );
+    });
+
+    it('ne devrait pas permettre de commander un produit en rupture de stock (produit 4, stock=0)', () => {
+      cy.visit(`${BASE_URL}/#/products/4`);
+      cy.intercept('PUT', 'http://localhost:8081/orders/add').as('addToCart');
+      cy.get('[data-cy="detail-product-quantity"]').clear().type('1');
+      cy.get('[data-cy="detail-product-add"]').click();
+      cy.wait('@addToCart').its('response.statusCode').should(
+        'be.gte', 400,
+        'BUG DÉTECTÉ : Le site accepte une commande pour un produit en rupture de stock (stock=0). L\'API devrait retourner une erreur.'
+      );
+    });
+
+    it('ne devrait pas permettre de commander une quantité supérieure au stock disponible (produit 7, stock=4, commande=10)', () => {
+      cy.visit(`${BASE_URL}/#/products/7`);
+      cy.intercept('PUT', 'http://localhost:8081/orders/add').as('addToCart');
+      cy.get('[data-cy="detail-product-quantity"]').clear().type('10');
+      cy.get('[data-cy="detail-product-add"]').click();
+      cy.wait('@addToCart').its('response.statusCode').should(
+        'be.gte', 400,
+        'BUG DÉTECTÉ : Le site accepte une commande de 10 unités alors que le stock disponible est de 4. L\'API devrait retourner une erreur.'
+      );
+    });
+
+  });
+
+  // ─────────────────────────────────────────────
+  // 6. VALIDATION DU PANIER
   // ─────────────────────────────────────────────
 
   describe('Validation du panier', () => {
@@ -190,6 +231,8 @@ describe('Validation panier - EcoBlissBath', () => {
     });
 
     it('devrait marquer le champ nom en erreur si vide', () => {
+      cy.get('[data-cy="cart-input-lastname"]').should('not.have.value', '');
+      cy.get('[data-cy="cart-input-lastname"]').clear().trigger('input');
       cy.get('[data-cy="cart-submit"]').click();
       cy.get('[for="lastname"]').should('have.class', 'error',
         'BUG DÉTECTÉ : Le champ "Nom" n\'est pas marqué en erreur alors qu\'il est vide.'
@@ -197,6 +240,8 @@ describe('Validation panier - EcoBlissBath', () => {
     });
 
     it('devrait marquer le champ prénom en erreur si vide', () => {
+      cy.get('[data-cy="cart-input-firstname"]').should('not.have.value', '');
+      cy.get('[data-cy="cart-input-firstname"]').clear().trigger('input');
       cy.get('[data-cy="cart-submit"]').click();
       cy.get('[for="firstname"]').should('have.class', 'error',
         'BUG DÉTECTÉ : Le champ "Prénom" n\'est pas marqué en erreur alors qu\'il est vide.'

@@ -19,7 +19,7 @@ export class ProductComponent implements OnInit {
     constructor(private http: HttpClient, private route: ActivatedRoute, private router: Router) {
         this.productForm = new FormGroup({
             product: new FormControl('', [Validators.required]),
-            quantity: new FormControl(1, [Validators.required, Validators.min(0)])
+            quantity: new FormControl(1, [Validators.required, Validators.min(1)])
         });
         this.isLogged = (localStorage.getItem('user') ?? null) !== null;
     }
