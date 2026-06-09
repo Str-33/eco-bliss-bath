@@ -1,6 +1,6 @@
 # Eco-Bliss-Bath — Tests automatisés Cypress
 
-Projet OpenClassrooms — Campagne de tests sur l'application Eco-Bliss-Bath.
+Eco-Bliss-Bath est une boutique en ligne de produits de bain bio et naturels. Ce dépôt contient la campagne de tests automatisés réalisée avec Cypress dans le cadre du projet OpenClassrooms. Les tests couvrent la connexion, le parcours d'achat, la validation du panier et les endpoints de l'API.
 
 ---
 
@@ -50,7 +50,7 @@ Le frontend sera disponible sur `http://localhost:4200`.
 
 ## Exécution des tests Cypress
 
-> Le frontend (`npm start`) et l'API (`docker compose up -d`) doivent être démarrés avant de lancer les tests.
+> ⚠️ **Important :** le frontend (`npm start`) et l'API (`docker compose up -d`) doivent être démarrés avant de lancer les tests.
 
 ### Mode interactif (interface graphique)
 
@@ -203,3 +203,5 @@ Le rapport est disponible dans `Eco-Bliss-Bath-V2-main/frontend/cypress/reports/
 | Email | Mot de passe | Rôle |
 |---|---|---|
 | `test2@test.fr` | `testtest` | Utilisateur standard |
+
+> Ces identifiants sont des données de test fictives créées uniquement pour les besoins de ce projet.
